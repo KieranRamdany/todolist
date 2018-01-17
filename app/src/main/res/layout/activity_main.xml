@@ -28,7 +28,7 @@
         android:layout_alignBaseline="@id/editText"
         android:layout_toRightOf="@id/editText"
         android:onClick="addTodo"
-        android:clickable="false"
+        android:enabled="false"
         android:text="+" />
 
     <LinearLayout
