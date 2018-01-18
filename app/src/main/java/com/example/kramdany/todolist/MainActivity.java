@@ -17,10 +17,14 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout todoList;
     private EditText editText;
     private Button addButton;
+    private AppDatabase db;
+    private LayoutInflater layoutInflater;
 
     protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
+            db = DatabaseCreator.getAppDatabase(getApplicationContext());
+            layoutInflater = LayoutInflater.from(this.getApplicationContext());
             todoList = this.findViewById(R.id.todoList);
             addButton = this.findViewById(R.id.addButton);
             editText = this.findViewById(R.id.editText);
@@ -45,17 +49,31 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             });
+            initiateTodoList();
         }
+
+    private void initiateTodoList() {
+        for(String text : db.todoDao().getAllTodoText()) {
+            addToTodoList(text);
+        }
+    }
+
+    private void addToTodoList(String text) {
+        TextView todoItem = (TextView) layoutInflater.inflate(R.layout.todo_item, todoList, false);
+        todoItem.setText(text);
+        editText.setText("");
+        todoList.addView(todoItem);
+
+    }
 
     public void addTodo(View view) {
         Log.i("buttonClickedViewId", Integer.toString(view.getId()));
         String text = editText.getText().toString().trim();
         if(!text.isEmpty()) {
-            LayoutInflater layoutInflater = LayoutInflater.from(this.getApplicationContext());
-            TextView todoItem = (TextView) layoutInflater.inflate(R.layout.todo_item, todoList, false);
-            todoItem.setText(editText.getText());
-            editText.setText("");
-            todoList.addView(todoItem);
+            TodoEntity todo = new TodoEntity();
+            todo.text = text;
+            db.todoDao().insertTodo(todo);
+            addToTodoList(text);
         }
         else {
             editText.setText("");
